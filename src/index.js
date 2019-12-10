@@ -134,7 +134,7 @@ async function addPlist(argz) {
   const plist = await generatePlist()
   const plistStr = plistBuilder(plist)
   if (!argz.daemon) {
-    throw Error('fuck you think you doing')
+    throw Error('Not supported')
   }
   fs.writeFileSync(`~/Library/LaunchAgents/${plist.label}`, plistStr)
 }

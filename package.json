@@ -24,6 +24,7 @@
   },
   "scripts": {
     "build": "pika build",
+    "check-commit": "lint-staged && jest --changedSince=HEAD",
     "test": "jest",
     "lint": "eslint src/**/*.js"
   },
@@ -40,11 +41,19 @@
     "@pika/plugin-standard-pkg": "^0.6.1",
     "commitlint": "^8.1.0",
     "eslint": "^6.4.0",
-    "jest": "^24.9.0"
+    "jest": "^24.9.0",
+    "lint-staged": "^9.5.0",
+    "pre-commit": "^1.2.2"
   },
   "commitlint": {
     "extends": [
       "@commitlint/config-conventional"
+    ]
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "git add"
     ]
   }
 }

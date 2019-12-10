@@ -28,7 +28,9 @@
     "lint": "eslint src/**/*.js"
   },
   "dependencies": {
-    "yargs": "^14.2.0"
+    "enquirer": "^2.3.2",
+    "plist": "^3.0.1",
+    "yargs": "^15.0.2"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^8.1.0",

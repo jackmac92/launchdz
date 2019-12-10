@@ -2,6 +2,8 @@ const fs = require('fs')
 const { prompt } = require('enquirer')
 const { build: plistBuilder } = require('plist')
 
+const LABEL_BASE = 'local.npm-launchd-wizard'
+
 async function generatePlist() {
   const pList = {}
   const getResult = (...prmpts) =>
@@ -57,9 +59,6 @@ async function generatePlist() {
     }[triggerMethod]
   )
   Object.assign(pList, triggerConfig)
-
-  // sudo cp ~/Downloads/com.zerowidth.launched.mqtt-benthos-helper.plist /Library/LaunchDaemons
-  // sudo launchctl load -w /Library/LaunchDaemons/com.zerowidth.launched.mqtt-benthos-helper.plist
 
   // const throttleSecs = await getResult({
   //   type: 'numeric',
@@ -123,15 +122,11 @@ async function generatePlist() {
     // Use this subkey to keep a job alive as long as a given path exists (true) or does not exist (false).
     // KeepAlive = { PathState: '/tmp/runJob': true }
   }
-
-  // MISC
-  // AbandonProcessGroup
-  // When launchd wants to terminate a job it sends a SIGTERM signal which will be propagated to all child processes of the job as well. Setting the value of this key to true will stop this propagation, allowing the child processes to survive their parents.
-
-  pList.Label = `local.npm-launchd-wizard.${label}`
-  pList.ProgramArguments = cmd.split(' ')
   // pList.LaunchOnlyOnce = argz.onlyOnce
   // pList.RunAtLoad = argz.runAtLoad
+
+  pList.Label = `${LABEL_BASE}.${label}`
+  pList.ProgramArguments = cmd.split(' ')
   return pList
 }
 
@@ -143,7 +138,17 @@ async function addPlist(argz) {
   }
   fs.writeFileSync(`~/Library/LaunchAgents/${plist.label}`, plistStr)
 }
-
+function listLaunchd(argz) {
+  return new Promise((resolve, reject) => {
+    fs.readdir(`${process.env.HOME}/Library/LaunchAgents`, (err, items) => {
+      if (err) {
+        return reject(err)
+      }
+      const filterFn = argz.all ? () => true : i => i.startsWith(LABEL_BASE)
+      resolve(items.filter(filterFn))
+    })
+  })
+}
 const main = async () =>
   require('yargs')
     .command(
@@ -161,18 +166,14 @@ const main = async () =>
       'list',
       'list plist files created by this app',
       yargs => {
-        yargs
+        yargs.option('all', {
+          short: 'a',
+          type: 'boolean',
+          description:
+            'Include all launchd services, not just those from this utility'
+        })
       },
-      () => {
-        fs.readdir(
-          `${process.env.HOME}/Library/LaunchAgents`,
-          (_err, items) => {
-            items.forEach(item => {
-              console.log(item)
-            })
-          }
-        )
-      }
+      listLaunchd
     )
     .demand(1, 'Please specify one of the commands!')
     .help().argv

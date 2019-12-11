@@ -28,42 +28,48 @@ async function generatePlist() {
     type: 'input',
     message: 'What command should be executed?'
   })
+  const trgChoices = {
+    boot: 'On Boot',
+    interval: 'Interval Timer',
+    cal: 'Calendar',
+    fswatch: 'Watch Path for Changes'
+  }
   const triggerMethod = await getResult({
     type: 'select',
     message: 'How should the command be triggered?',
-    choices: ['Interval Timer', 'Calendar', 'Watch Path']
+    choices: Object.values(trgChoices)
   })
-  const triggerConfig = await getResult(
-    {
-      // TODO handle cron like input
-      'Interval Timer': {
-        type: 'input',
-        message: 'How many seconds between automatic invocations?',
-        validate: n => {
-          if (Number.isNaN(parseInt(n, 0))) {
-            return 'Invalid number, requires integer'
-          }
-          if (n < 1) {
-            return 'Number must be greater than 1'
-          }
-          return true
-        },
-        result: choice => ({
-          StartInterval: choice
-        })
+  const triggerConfig = await {
+    [trgChoices.boot]: Promise.resolve({
+      RunAtLoad: true
+    }),
+    [trgChoices.interval]: getResult({
+      type: 'input',
+      message: 'How many seconds between automatic invocations?',
+      validate: n => {
+        if (Number.isNaN(parseInt(n, 0))) {
+          return 'Invalid number, requires integer'
+        }
+        if (n < 1) {
+          return 'Number must be greater than 1'
+        }
+        return true
       },
-      Calendar: {
-        type: ''
-      }
-      // 'Watch Path': {}
-    }[triggerMethod]
-  )
-  Object.assign(pList, triggerConfig)
+      result: choice => ({
+        StartInterval: choice
+      })
+    }),
+    [trgChoices.fswatch]: getResult({}),
+    [trgChoices.cal]: getResult({})
+  }[triggerMethod]
 
-  // const throttleSecs = await getResult({
-  //   type: 'numeric',
-  //   message: 'Throttle invocations?'
-  // })
+  Object.assign(pList, triggerConfig)
+  if (triggerMethod === trgChoices.fswatch) {
+    pList.ThrottleInterval = await getResult({
+      type: 'numeric',
+      message: 'Throttle invocations?'
+    })
+  }
   if (
     await getResult({
       type: 'confirm',
@@ -73,7 +79,9 @@ async function generatePlist() {
   ) {
     const alwaysAlive = await getResult({
       type: 'toggle',
-      message: 'Keep Alive always?',
+      message:
+        'Keep Alive ALWAYS? ' +
+        'Note: This can create issues for things like updates which want to close the app',
       initial: true,
       enabled: 'Yes',
       disabled: 'No, selectively'

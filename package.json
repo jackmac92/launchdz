@@ -1,5 +1,6 @@
 {
-  "name": "launchd-wizard",
+  "name": "launchdz",
+  "description": "Guided creation of launchd plist files",
   "version": "1.0.1",
   "@pika/pack": {
     "pipeline": [
@@ -57,4 +58,3 @@
     ]
   }
 }
-

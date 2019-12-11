@@ -77,6 +77,10 @@ async function generatePlist() {
     [trgChoices.fswatch]: getResult({}),
     [trgChoices.cal]: getResult({})
   }[triggerMethod]
+  // const addEnvironmentVariables = async () => {
+  //   // split on first space to get key
+  //   pList.EnvironmentVariables = await
+  // }
 
   Object.assign(pList, triggerConfig)
   if (triggerMethod === trgChoices.fswatch) {
@@ -104,6 +108,7 @@ async function generatePlist() {
     if (alwaysAlive) {
       pList.KeepAlive = true
     } else {
+      pList.KeepAlive = {}
       const keepAliveOpts = await getResult({
         type: 'multiselect',
         message: 'Which factors should determine KeepAlive status?',
@@ -141,9 +146,6 @@ async function generatePlist() {
         )
       }
     }
-    // ...depending on the Existence of a Path: PathState
-    // Use this subkey to keep a job alive as long as a given path exists (true) or does not exist (false).
-    // KeepAlive = { PathState: '/tmp/runJob': true }
   }
   // pList.LaunchOnlyOnce = argz.onlyOnce
   // pList.RunAtLoad = argz.runAtLoad
@@ -159,7 +161,11 @@ async function addPlist(argz) {
   if (!argz.daemon) {
     throw Error('Not supported')
   }
-  fs.writeFileSync(`~/Library/LaunchAgents/${plist.label}`, plistStr)
+  if (argz.print) {
+    console.log(plistStr)
+  } else {
+    fs.writeFileSync(`~/Library/LaunchAgents/${plist.label}`, plistStr)
+  }
 }
 function listLaunchd(argz) {
   return new Promise((resolve, reject) => {
@@ -181,6 +187,11 @@ const main = async () =>
         yargs.option('daemon', {
           type: 'boolean',
           description: 'Create a LaunchDaemon instead of a LaunchAgent'
+        })
+        yargs.option('print', {
+          type: 'boolean',
+          short: 'p',
+          description: 'Write the resulting file to stdout'
         })
       },
       addPlist

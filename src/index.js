@@ -4,6 +4,15 @@ const { build: plistBuilder } = require('plist')
 
 const LABEL_BASE = 'local.npm-launchd-wizard'
 
+// templates
+// persistent daemon
+//   keepalive always?
+//   stdio
+// run at login
+//   keepalive always?
+//   stdio
+// self destructing?
+
 async function generatePlist() {
   const pList = {}
   const getResult = (...prmpts) =>
@@ -22,7 +31,13 @@ async function generatePlist() {
 
   const label = await getResult({
     type: 'input',
-    message: 'What is the text label for this service?'
+    message: 'What is the text label for this service?',
+    validate: s => {
+      if (s.indexOf(' ') !== -1) {
+        return 'Name not allowed to include spaces'
+      }
+      return true
+    }
   })
   const cmd = await getResult({
     type: 'input',

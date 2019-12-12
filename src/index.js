@@ -158,14 +158,14 @@ async function generatePlist() {
 async function addPlist(argz) {
   const plist = await generatePlist()
   const plistStr = plistBuilder(plist)
-  if (!argz.daemon) {
-    throw Error('Not supported')
-  }
   if (argz.print) {
     console.log(plistStr)
+  } else if (argz.daemon) {
+    throw Error('Not supported')
   } else {
     fs.writeFileSync(`~/Library/LaunchAgents/${plist.label}`, plistStr)
   }
+  return Promise.resolve()
 }
 function listLaunchd(argz) {
   return new Promise((resolve, reject) => {

@@ -1,4 +1,6 @@
 const fs = require('fs')
+const shell = require('shelljs')
+const write = require('write')
 const { prompt } = require('enquirer')
 const { build: plistBuilder } = require('plist')
 
@@ -38,12 +40,57 @@ const getCommonInfo = async () => {
       return true
     }
   })
-  const cmd = await getResult({
-    type: 'input',
-    message: 'What command should be executed?'
+  const genWithScript = await getResult({
+    type: 'toggle',
+    message: 'Do you want to write a script for this service to execute?',
+    initial: true,
+    enabled: 'Create script (better for complex scripts)',
+    disabled: 'No scriptfile needed'
   })
 
+  const cmd = await (async () => {
+    if (!genWithScript) {
+      return getResult({
+        type: 'input',
+        message: 'What command should be executed?'
+      })
+    }
+    const scriptPath = `${process.env.HOME}/.launchdz-scripts/${label}.sh`
+    console.log('Opening a text file for you to write the script...')
+    await write(scriptPath, '#! /bin/bash\n')
+    await new Promise(r => {
+      setTimeout(r, 2000)
+    })
+    await shell.exec(`$EDITOR ${scriptPath}`)
+    await getResult({
+      type: 'confirm',
+      initial: true,
+      message: "Just making sure you're done editing the script!"
+    })
+
+    return `/bin/bash ${scriptPath}`
+  })()
+
   return { cmd, label }
+}
+
+const handleEnvVars = async () => {
+  let stillAdding = true
+  const _envVars = {}
+  const addEnvVar = strEnvVar => {
+    const [k, v] = strEnvVar.split('=')
+    _envVars[k] = v
+  }
+
+  while (stillAdding) {
+    const message =
+      'What environment variable would you like to add, specify one at a time as VARIABLE=VALUE'
+    addEnvVar(await getResult({ type: 'input', message }))
+    stillAdding = await getResult({
+      type: 'confirm',
+      message: 'Add another Environment Variable?'
+    })
+  }
 }
 
 const handleSTDIO = async () => {
@@ -261,6 +308,7 @@ async function generateFromTemplate(argz) {
     }
   }
   Object.assign(pList, await handleSTDIO())
+  pList.EnvironmentVariables = await handleEnvVars()
 
   return pList
 }
@@ -287,10 +335,14 @@ async function addPlist(argz) {
   } else if (argz.daemon) {
     throw Error('Not supported')
   } else {
-    fs.writeFileSync(`~/Library/LaunchAgents/${plist.label}`, plistStr)
+    await write(
+      `${process.env.HOME}/Library/LaunchAgents/${plist.Label}`,
+      plistStr
+    )
   }
   return Promise.resolve()
 }
+
 function listLaunchd(argz) {
   return new Promise((resolve, reject) => {
     fs.readdir(`${process.env.HOME}/Library/LaunchAgents`, (err, items) => {

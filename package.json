@@ -32,6 +32,8 @@
   "dependencies": {
     "enquirer": "^2.3.2",
     "plist": "^3.0.1",
+    "shelljs": "^0.8.3",
+    "write": "^2.0.0",
     "yargs": "^15.0.2"
   },
   "devDependencies": {

@@ -55,7 +55,7 @@ const getCommonInfo = async () => {
         message: 'What command should be executed?'
       })
     }
-    const scriptPath = `${process.env.HOME}/.launchdz-scripts/${label}.sh`
+    const scriptPath = `${process.env.HOME}/.launchdz/scripts/${label}.sh`
     console.log('Opening a text file for you to write the script...')
     await write(scriptPath, '#! /bin/bash\n')
     await new Promise(r => {
@@ -78,7 +78,8 @@ const handleEnvVars = async () => {
   let stillAdding = true
   const _envVars = {}
   const addEnvVar = strEnvVar => {
-    const [k, v] = strEnvVar.split('=')
+    const [k, ...rest] = strEnvVar.split('=')
+    const v = rest.join('=')
     _envVars[k] = v
   }
 
@@ -93,7 +94,7 @@ const handleEnvVars = async () => {
   }
 }
 
-const handleSTDIO = async () => {
+const handleSTDIO = async label => {
   const choices = await getResult({
     type: 'multiselect',
     message: 'Specify files for stdio?',
@@ -107,7 +108,10 @@ const handleSTDIO = async () => {
         message: `Which file should be used for std ${el.toLowerCase()}`
       })
     }),
-    {}
+    {
+      StandardOutPath: `${process.env.HOME}/.launchdz/logs/${label}/out.log`,
+      StandardErrorPath: `${process.env.HOME}/.launchdz/logs/${label}/error.log`
+    }
   )
 }
 const handleKeepAlive = async () => {
@@ -307,7 +311,7 @@ async function generateFromTemplate(argz) {
       )
     }
   }
-  Object.assign(pList, await handleSTDIO())
+  Object.assign(pList, await handleSTDIO(plist.Label))
   pList.EnvironmentVariables = await handleEnvVars()
 
   return pList

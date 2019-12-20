@@ -270,7 +270,11 @@ async function generateFromTemplate(argz) {
     case 'fswatch': {
       pList.WatchPaths = await getResult({
         type: 'keywords',
-        message: 'Comma separated list of absolute paths to watch'
+        message: `\
+NOTE: If watching for a file, the file must exist at all times that the service is running.
+launchd will ignore the file as soon as it is missing. See: https://managingosx.wordpress.com/2006/05/10/launchd-gotcha/
+
+Enter comma separated list of absolute paths to watch`
       })
       if (
         await getResult({

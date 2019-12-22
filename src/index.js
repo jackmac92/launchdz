@@ -174,9 +174,8 @@ async function generatePlist() {
   const { cmd, label } = await getCommonInfo()
   const trgChoices = {
     boot: 'On Boot',
-    interval: 'Interval Timer',
-    cal: 'Calendar',
-    fswatch: 'Watch Path for Changes'
+    interval: 'Interval Timer'
+    // cal: 'Calendar'
   }
   const triggerMethod = await getResult({
     type: 'select',
@@ -202,22 +201,11 @@ async function generatePlist() {
       result: choice => ({
         StartInterval: choice
       })
-    }),
-    [trgChoices.fswatch]: getResult({}),
-    [trgChoices.cal]: getResult({})
+    })
+    // , [trgChoices.cal]: getResult({})
   }[triggerMethod]
-  // const addEnvironmentVariables = async () => {
-  //   // split on first space to get key
-  //   pList.EnvironmentVariables = await
-  // }
 
   Object.assign(pList, triggerConfig)
-  if (triggerMethod === trgChoices.fswatch) {
-    pList.ThrottleInterval = await getResult({
-      type: 'numeric',
-      message: 'Throttle invocations?'
-    })
-  }
 
   if (
     await getResult({
@@ -232,10 +220,9 @@ async function generatePlist() {
   pList.ProgramArguments = cmd.split(' ')
   return pList
 }
-const PRG_T_FS = 'fswatch'
 const PRG_T_PROC = 'proc'
 const PRG_T_INTERVAL = 'interval'
-const PROGRAM_TYPES = [PRG_T_FS, PRG_T_PROC, PRG_T_INTERVAL]
+const PROGRAM_TYPES = [PRG_T_PROC, PRG_T_INTERVAL]
 
 async function generateFromTemplate(argz) {
   const pList = {}
@@ -262,42 +249,13 @@ async function generateFromTemplate(argz) {
       }
       break
     }
-    // case 'loop-script': {
-    //   // same as process, but it does not assume that the program is long running
-    //   // ask about keepalive type
-    //   break
-    // }
-    case 'fswatch': {
-      pList.WatchPaths = await getResult({
-        type: 'keywords',
-        message: `\
-NOTE: If watching for a file, the file must exist at all times that the service is running.
-launchd will ignore the file as soon as it is missing. See: https://managingosx.wordpress.com/2006/05/10/launchd-gotcha/
-
-Enter comma separated list of absolute paths to watch`
-      })
-      if (
-        await getResult({
-          type: 'confirm',
-          message: 'Throttle invocations of this program?'
-        })
-      ) {
-        pList.ThrottleInterval = await getResult({
-          type: 'numeric',
-          message: 'Ensure at least this many seconds pass between runs'
-        })
-      }
-
-      // TODO handle queue type path watch
-      break
-    }
     case 'interval': {
       pList.RunAtLoad = true
       pList.StartInterval = await getResult({
         type: 'input',
         message: 'How many seconds between automatic invocations?',
         validate: n => {
-          if (Number.isNaN(parseInt(n, 0))) {
+          if (Number.isNaN(parseInt(n, 10))) {
             return 'Invalid number, requires integer'
           }
           if (n < 1) {
@@ -315,7 +273,7 @@ Enter comma separated list of absolute paths to watch`
       )
     }
   }
-  Object.assign(pList, await handleSTDIO(plist.Label))
+  Object.assign(pList, await handleSTDIO(pList.Label))
   pList.EnvironmentVariables = await handleEnvVars()
 
   return pList
@@ -343,10 +301,12 @@ async function addPlist(argz) {
   } else if (argz.daemon) {
     throw Error('Not supported')
   } else {
-    await write(
-      `${process.env.HOME}/Library/LaunchAgents/${plist.Label}`,
-      plistStr
-    )
+    const plistFilePath = `${process.env.HOME}/Library/LaunchAgents/${plist.Label}`
+    await write(plistFilePath, plistStr)
+    if (!argz.noLoad) {
+      await shell.exec(`launchctl load ${plistFilePath}`)
+    }
+    console.log('Successfully loaded the new launchd service')
   }
   return Promise.resolve()
 }

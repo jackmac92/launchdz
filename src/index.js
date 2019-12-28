@@ -292,13 +292,25 @@ async function addPlist(argz) {
   const plistStr = plistBuilder(plist)
   if (argz.print) {
     console.log(plistStr)
-  } else if (argz.daemon) {
-    throw Error('Not supported')
   } else {
-    const plistFilePath = `${process.env.HOME}/Library/LaunchAgents/${plist.Label}`
-    await write(plistFilePath, plistStr)
-    if (!argz.noLoad) {
-      await shell.exec(`launchctl load ${plistFilePath}`)
+    if (argz.daemon) {
+      const plistFilePath = `/System/Library/LaunchDaemons/${plist.Label}`
+      await shell.exec(`
+      sudo cat <<EOF > ${plistFilePath}
+      ${plistStr}
+
+      EOF
+
+      `)
+      if (!argz.noLoad) {
+        await shell.exec(`sudo launchctl load ${plistFilePath}`)
+      }
+    } else {
+      const plistFilePath = `${process.env.HOME}/Library/LaunchAgents/${plist.Label}`
+      await write(plistFilePath, plistStr)
+      if (!argz.noLoad) {
+        await shell.exec(`launchctl load ${plistFilePath}`)
+      }
     }
     console.log('Successfully loaded the new launchd service')
   }

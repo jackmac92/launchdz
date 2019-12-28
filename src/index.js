@@ -332,6 +332,10 @@ const main = async () =>
           type: 'boolean',
           description: 'Create a LaunchDaemon instead of a LaunchAgent'
         })
+        yargs.option('noLoad', {
+          type: 'boolean',
+          description: 'Prevent automatically loading the new launchd service'
+        })
         yargs.option('guided', {
           type: 'boolean',
           description: 'Longer process that walks you through creation'

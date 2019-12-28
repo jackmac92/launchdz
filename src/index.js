@@ -286,12 +286,6 @@ async function addPlist(argz) {
   } else if (argz.manual) {
     plist = await generatePlist()
   } else {
-    console.warn(`
-      How do you want to create the launchd service?
-      You either need to pass the --walkthru flag for a full guided setup
-      Or choose one of the templates for a quick setup!
-      Templates are: ${PROGRAM_TYPES.join('|')}
-    `)
     process.exit(1)
   }
 

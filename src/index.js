@@ -294,7 +294,7 @@ async function addPlist(argz) {
     console.log(plistStr)
   } else {
     if (argz.daemon) {
-      const plistFilePath = `/System/Library/LaunchDaemons/${plist.Label}`
+      const plistFilePath = `/System/Library/LaunchDaemons/${plist.Label}.plist`
       await shell.exec(`
       sudo cat <<EOF > ${plistFilePath}
       ${plistStr}
@@ -306,7 +306,7 @@ async function addPlist(argz) {
         await shell.exec(`sudo launchctl load ${plistFilePath}`)
       }
     } else {
-      const plistFilePath = `${process.env.HOME}/Library/LaunchAgents/${plist.Label}`
+      const plistFilePath = `${process.env.HOME}/Library/LaunchAgents/${plist.Label}.plist`
       await write(plistFilePath, plistStr)
       if (!argz.noLoad) {
         await shell.exec(`launchctl load ${plistFilePath}`)
@@ -369,7 +369,7 @@ const main = async () =>
             'Include all launchd services, not just those from this utility'
         })
       },
-      listLaunchd
+      a => listLaunchd(a).then(a => a.forEach(b => console.log(b)))
     )
     .demand(1, 'Please specify one of the commands!')
     .help().argv

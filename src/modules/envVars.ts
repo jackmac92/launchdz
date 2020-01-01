@@ -1,4 +1,4 @@
-const { getResult } = require('../utils')
+import { getResult } from '../utils'
 
 const handleEnvVars = async () => {
   let stillAdding = true
@@ -20,4 +20,4 @@ const handleEnvVars = async () => {
   }
 }
 
-module.exports = handleEnvVars
+export default handleEnvVars

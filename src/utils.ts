@@ -1,6 +1,6 @@
 const { prompt } = require('enquirer')
 
-const getResult = (...prmpts) =>
+export const getResult = (...prmpts) =>
   prompt(prmpts.map((prmpt, idx) => ({ name: `result${idx}`, ...prmpt })))
     .then(answers =>
       Object.keys(answers)
@@ -13,5 +13,3 @@ const getResult = (...prmpts) =>
       }
       return z[0]
     })
-
-module.exports.getResult = getResult

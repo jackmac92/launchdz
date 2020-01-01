@@ -1,7 +1,7 @@
-const { getResult } = require('../utils')
+import { getResult } from '../utils'
 
 const handleKeepAlive = async () => {
-  const pList = {}
+  const pList: any = {}
   const alwaysAlive = await getResult({
     type: 'toggle',
     message:
@@ -55,4 +55,4 @@ const handleKeepAlive = async () => {
   return pList
 }
 
-module.exports = handleKeepAlive
+export default handleKeepAlive

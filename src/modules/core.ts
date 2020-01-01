@@ -1,4 +1,6 @@
-const { getResult } = require('../utils')
+import { getResult } from '../utils'
+import shell from 'shelljs'
+import write from 'write'
 
 const getCommonInfo = async () => {
   const label = await getResult({
@@ -30,4 +32,4 @@ const getCommonInfo = async () => {
   return { cmd, label }
 }
 
-module.exports = getCommonInfo
+export default getCommonInfo

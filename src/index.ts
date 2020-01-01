@@ -1,12 +1,12 @@
-const fs = require('fs')
-const shell = require('shelljs')
-const write = require('write')
-const handleSTDIO = require('./modules/stdio')
-const handleKeepAlive = require('./modules/keepAlive')
-const handleEnvVars = require('./modules/envVars')
-const getCommonInfo = require('./modules/core')
-const { build: plistBuilder } = require('plist')
-const { getResult } = require('./utils')
+import fs from 'fs'
+import shell from 'shelljs'
+import write from 'write'
+import handleSTDIO from './modules/stdio'
+import handleKeepAlive from './modules/keepAlive'
+import handleEnvVars from './modules/envVars'
+import getCommonInfo from './modules/core'
+import { build as plistBuilder } from 'plist'
+import { getResult } from './utils'
 
 const LABEL_BASE = 'local.npm-launchd-wizard'
 
@@ -20,7 +20,7 @@ const LABEL_BASE = 'local.npm-launchd-wizard'
 // self destructing?
 
 async function generateFromTemplate(serviceType, _argz) {
-  const pList = {}
+  const pList: { [key: string]: any } = {}
   const { cmd, label } = await getCommonInfo()
   pList.Label = `${LABEL_BASE}.${label}`
   pList.ProgramArguments = cmd.split(' ')
@@ -107,7 +107,7 @@ async function addPlist(serviceType, argz) {
   return Promise.resolve()
 }
 
-function listLaunchd(argz) {
+function listLaunchd(argz): Promise<string[]> {
   return new Promise((resolve, reject) => {
     fs.readdir(`${process.env.HOME}/Library/LaunchAgents`, (err, items) => {
       if (err) {
@@ -182,4 +182,4 @@ const main = async () => {
     .help().argv
 }
 
-module.exports.run = main
+export const run = main

@@ -1,4 +1,4 @@
-const { getResult } = require('../utils')
+import { getResult } from '../utils'
 
 const handleSTDIO = async label => {
   const choices = await getResult({
@@ -21,4 +21,4 @@ const handleSTDIO = async label => {
   )
 }
 
-module.exports = handleSTDIO
+export default handleSTDIO

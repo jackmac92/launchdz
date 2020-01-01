@@ -5,7 +5,7 @@
   "@pika/pack": {
     "pipeline": [
       [
-        "@pika/plugin-standard-pkg",
+        "@pika/plugin-ts-standard-pkg",
         {
           "exclude": [
             "__tests__/**/*"
@@ -33,20 +33,23 @@
     "enquirer": "^2.3.2",
     "plist": "^3.0.1",
     "shelljs": "^0.8.3",
+    "typescript": "^3.7.4",
     "write": "^2.0.0",
     "yargs": "^15.0.2"
   },
   "devDependencies": {
-    "@commitlint/config-conventional": "^8.1.0",
+    "@commitlint/config-conventional": "^8.2.0",
     "@pika/pack": "^0.5.0",
-    "@pika/plugin-build-node": "^0.6.1",
-    "@pika/plugin-simple-bin": "^0.6.1",
-    "@pika/plugin-standard-pkg": "^0.6.1",
-    "commitlint": "^8.1.0",
-    "eslint": "^6.4.0",
+    "@pika/plugin-build-node": "^0.8.1",
+    "@pika/plugin-simple-bin": "^0.8.1",
+    "@pika/plugin-ts-standard-pkg": "^0.8.1",
+    "@types/jest": "^24.0.25",
+    "commitlint": "^8.2.0",
+    "eslint": "^6.8.0",
     "jest": "^24.9.0",
     "lint-staged": "^9.5.0",
-    "pre-commit": "^1.2.2"
+    "pre-commit": "^1.2.2",
+    "ts-jest": "^24.2.0"
   },
   "commitlint": {
     "extends": [

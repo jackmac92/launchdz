@@ -11,7 +11,10 @@ export default {
       }
     }
   ],
-  extends: 'eslint:recommended',
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/eslint-recommended'
+  ],
   globals: {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly'

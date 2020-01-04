@@ -18,7 +18,6 @@ const LABEL_BASE = 'local.npm-launchd-wizard'
 //   keepalive always?
 //   stdio
 // self destructing?
-
 async function generateFromTemplate(serviceType, _argz) {
   const pList: { [key: string]: any } = {}
   const { cmd, label } = await getCommonInfo()
@@ -72,6 +71,9 @@ async function generateFromTemplate(serviceType, _argz) {
   }
   Object.assign(pList, await handleSTDIO(pList.Label))
   pList.EnvironmentVariables = await handleEnvVars()
+  if (Object.keys(pList.EnvironmentVariables).length === 0) {
+    delete pList.EnvironmentVariables
+  }
 
   return pList
 }
@@ -107,15 +109,22 @@ async function addPlist(serviceType, argz) {
   return Promise.resolve()
 }
 
-function listLaunchd(argz): Promise<string[]> {
+function listLaunchdItems(): Promise<string[]> {
   return new Promise((resolve, reject) => {
-    fs.readdir(`${process.env.HOME}/Library/LaunchAgents`, (err, items) => {
+    const plistFilePath = `${process.env.HOME}/Library/LaunchAgents`
+    fs.readdir(plistFilePath, (err, items) => {
       if (err) {
         return reject(err)
       }
-      const filterFn = argz.all ? () => true : i => i.startsWith(LABEL_BASE)
-      resolve(items.filter(filterFn))
+      resolve(items)
     })
+  })
+}
+function listLaunchd(argz): Promise<string[]> {
+  return listLaunchdItems().then(items => {
+    const filterFn = argz.all ? () => true : i => i.startsWith(LABEL_BASE)
+    const result = items.filter(filterFn)
+    return result
   })
 }
 const main = async () => {
@@ -176,7 +185,11 @@ const main = async () => {
             'Include all launchd services, not just those from this utility'
         })
       },
-      a => listLaunchd(a).then(a => a.forEach(b => console.log(b)))
+      a =>
+        listLaunchd(a).then(a => {
+          console.log(`Found ${a.length} entries`)
+          a.forEach(i => console.log(i))
+        })
     )
     .demand(1, 'Please specify one of the commands!')
     .help().argv

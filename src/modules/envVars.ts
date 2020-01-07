@@ -2,11 +2,11 @@ import { getResult } from '../utils'
 
 const handleEnvVars = async () => {
   let stillAdding = true
-  const _envVars = {}
+  const _envVars = []
   const addEnvVar = strEnvVar => {
     const [k, ...rest] = strEnvVar.split('=')
     const v = rest.join('=')
-    _envVars[k] = v
+    _envVars.push([k, v])
   }
 
   while (stillAdding) {
@@ -18,6 +18,7 @@ const handleEnvVars = async () => {
       message: 'Add another Environment Variable?'
     })
   }
+  return _envVars
 }
 
 export default handleEnvVars

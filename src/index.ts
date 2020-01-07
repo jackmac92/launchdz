@@ -70,9 +70,9 @@ async function generateFromTemplate(serviceType, _argz) {
     }
   }
   Object.assign(pList, await handleSTDIO(pList.Label))
-  pList.EnvironmentVariables = await handleEnvVars()
-  if (Object.keys(pList.EnvironmentVariables).length === 0) {
-    delete pList.EnvironmentVariables
+  const envVars = await handleEnvVars()
+  if (envVars.length > 0) {
+    pList.EnvironmentVariables = envVars
   }
 
   return pList

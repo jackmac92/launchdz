@@ -72,7 +72,10 @@ async function generateFromTemplate(serviceType, _argz) {
   Object.assign(pList, await handleSTDIO(pList.Label))
   const envVars = await handleEnvVars()
   if (envVars.length > 0) {
-    pList.EnvironmentVariables = envVars
+    pList.EnvironmentVariables = envVars.reduce(
+      (acc, [k, v]) => ({ ...acc, [k]: v }),
+      {}
+    )
   }
 
   return pList

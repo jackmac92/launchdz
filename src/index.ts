@@ -1,7 +1,6 @@
 import fs from 'fs'
 import shell from 'shelljs'
 import write from 'write'
-import handleSTDIO from './modules/stdio'
 import handleKeepAlive from './modules/keepAlive'
 import handleEnvVars from './modules/envVars'
 import getCommonInfo from './modules/core'
@@ -69,7 +68,7 @@ async function generateFromTemplate(serviceType, _argz) {
       )
     }
   }
-  Object.assign(pList, await handleSTDIO(pList.Label))
+
   const envVars = await handleEnvVars()
   if (envVars.length > 0) {
     pList.EnvironmentVariables = envVars.reduce(

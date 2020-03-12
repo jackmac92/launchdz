@@ -192,7 +192,7 @@ const main = async () => {
           );
         }
         const prebakedApp = prebakedOfferings[a.prebakedOption](a);
-        const scriptPath = `${process.env.HOME}/.launchdz/scripts/${prebakedApp.LABEL}.sh`;
+        const scriptPath = `${process.env.HOME}/.launchdz/scripts/${prebakedApp.NAME}.sh`;
         await write(scriptPath, prebakedApp.script);
         await loadPlist(
           prebakedApp.plist,

@@ -193,6 +193,19 @@ const main = async () => {
         }
         const prebakedApp = prebakedOfferings[a.prebakedOption](a);
         const scriptPath = `${process.env.HOME}/.launchdz/scripts/${prebakedApp.NAME}.sh`;
+        const missingDeps = await prebakedApp.requiredTools.reduce(
+          async (missingDeps: string[], dep: string) => {
+            if (shell.exec(`command -v ${dep}`).code !== 0) {
+              missingDeps.push(dep);
+            }
+            return missingDeps;
+          },
+          []
+        );
+
+        if (missingDeps.length !== 0) {
+          console.warn("It appears you are missing dependencies!", missingDeps);
+        }
         await write(scriptPath, prebakedApp.script);
         await loadPlist(
           prebakedApp.plist,

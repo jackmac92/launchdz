@@ -4,15 +4,26 @@ const LABEL = `local.npm-launchd-wizard.${NAME}`;
 const script = `
 #! /bin/bash
 
+# listeninig for Rename event because
+# the Screenshot is initially saved
+# as a hidden file, and then renamed to be visible
 /usr/local/bin/fswatch --event Renamed -0 ${process.env.HOME}/Desktop | while read -d "" event; do
-  echo "Detected rename event in Desktop folder"
-  # checkinig for '/' below to prevent matching the hidden file created in the interim
   if echo "$event" | grep -q "\/Screen Shot"; then
-    echo "Copying screenshot to clipboard"
-    ${process.env.HOME}/my/code/randomScripts/HAMMERSPOON/copyImageToClipboard.sh "$event"
+    osascript \
+        -e 'set this_file to POSIX file "'"$event"'" as alias' \
+        -e 'tell application "Image Events"' \
+            -e 'launch' \
+            -e 'set this_image to open this_file' \
+            -e 'copy the image file of this_image to imgfile' \
+            -e 'set the clipboard to (read imgfile as PNG)' \
+            -e 'close this_image' \
+        -e 'end tell'
+
+    osascript -e 'display notification "Copied screenshot to clipboard!"'
   fi
 done
 `;
+
 const plist = `
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">

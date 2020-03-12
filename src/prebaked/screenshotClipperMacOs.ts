@@ -1,4 +1,4 @@
-export const requiredTools = ["fswatch"];
+const requiredTools = ["fswatch"];
 const NAME = "auto-copy-screenshots";
 const LABEL = `local.npm-launchd-wizard.${NAME}`;
 const script = `
@@ -47,4 +47,4 @@ const plist = `
 </plist>
 `;
 
-export default () => ({ plist, script, NAME, LABEL });
+export default () => ({ plist, script, NAME, LABEL, requiredTools });

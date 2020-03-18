@@ -195,7 +195,7 @@ const main = async () => {
         const scriptPath = `${process.env.HOME}/.launchdz/scripts/${prebakedApp.NAME}.sh`;
         const missingDeps = await prebakedApp.requiredTools.reduce(
           async (missingDeps: string[], dep: string) => {
-            if (shell.exec(`command -v ${dep}`).code !== 0) {
+            if (shell.exec(`command -v ${dep} > /dev/null 2>&1`).code !== 0) {
               missingDeps.push(dep);
             }
             return missingDeps;

@@ -1,7 +1,7 @@
 {
   "name": "launchdz",
   "description": "Guided creation of launchd plist files",
-  "version": "1.0.1",
+  "version": "2.4.3",
   "@pika/pack": {
     "pipeline": [
       [

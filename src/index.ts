@@ -194,9 +194,14 @@ const main = async () => {
         const prebakedApp = prebakedOfferings[a.prebakedOption](a);
         const scriptPath = `${process.env.HOME}/.launchdz/scripts/${prebakedApp.NAME}.sh`;
         const missingDeps = await prebakedApp.requiredTools.reduce(
-          async (missingDeps: string[], dep: string) => {
+          async (
+            missingDeps: string[],
+            [dep, autoInstall]: [string, string?]
+          ) => {
             if (shell.exec(`command -v ${dep} > /dev/null 2>&1`).code !== 0) {
-              missingDeps.push(dep);
+              if (!autoInstall || shell.exec(autoInstall).code !== 0) {
+                missingDeps.push(dep);
+              }
             }
             return missingDeps;
           },

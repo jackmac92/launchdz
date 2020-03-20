@@ -1,4 +1,4 @@
-const requiredTools = ["fswatch"];
+const requiredTools = ["fswatch", "brew install fswatch"];
 const NAME = "auto-copy-screenshots";
 const LABEL = `local.npm-launchd-wizard.${NAME}`;
 const script = `

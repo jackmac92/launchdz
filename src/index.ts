@@ -182,6 +182,12 @@ const main = async () => {
         yargs.positional("prebakedOption", {
           describe: "Which prebaked service would you like?"
         });
+        yargs.option("autoInstallDeps", {
+          type: "boolean",
+          alias: "f",
+          default: false,
+          describe: "Automatically install missing requirements?"
+        });
       },
       async a => {
         if (!prebakedOfferings[a.prebakedOption]) {
@@ -193,23 +199,34 @@ const main = async () => {
         }
         const prebakedApp = prebakedOfferings[a.prebakedOption](a);
         const scriptPath = `${process.env.HOME}/.launchdz/scripts/${prebakedApp.NAME}.sh`;
-        const missingDeps = await prebakedApp.requiredTools.reduce(
-          async (
-            missingDeps: string[],
-            [dep, autoInstall]: [string, string?]
-          ) => {
+        const missingDependencies = await prebakedApp.requiredTools.reduce(
+          (missingDeps: string[], [dep, autoInstallCmd]: [string, string?]) => {
+            let isMissing = false;
+
             if (shell.exec(`command -v ${dep} > /dev/null 2>&1`).code !== 0) {
-              if (!autoInstall || shell.exec(autoInstall).code !== 0) {
-                missingDeps.push(dep);
+              const shouldTryInstall = a.autoInstallDeps && autoInstallCmd;
+              if (shouldTryInstall) {
+                if (shell.exec(autoInstallCmd).code !== 0) {
+                  isMissing = true;
+                }
+              } else {
+                isMissing = true;
               }
+            }
+            if (isMissing) {
+              missingDeps.push(dep);
             }
             return missingDeps;
           },
           []
         );
 
-        if (missingDeps.length !== 0) {
-          console.warn("It appears you are missing dependencies!", missingDeps);
+        if (missingDependencies.length !== 0) {
+          console.error(
+            "It appears you are missing dependencies!:\n",
+            missingDependencies.join("\n\t")
+          );
+          process.exit(1);
         }
         await write(scriptPath, prebakedApp.script);
         await loadPlist(

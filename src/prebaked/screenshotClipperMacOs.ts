@@ -8,7 +8,7 @@ const script = `
 # the Screenshot is initially saved
 # as a hidden file, and then renamed to be visible
 /usr/local/bin/fswatch --event Renamed -0 ${process.env.HOME}/Desktop | while read -d "" event; do
-  if echo "$event" | grep -q "\/Screen Shot"; then
+  if echo "$event" | grep -q "\/Screen Shot" && [ -f "$event" ]; then
     osascript \\
         -e 'set this_file to POSIX file "'"$event"'" as alias' \\
         -e 'tell application "Image Events"' \\

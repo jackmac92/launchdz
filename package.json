@@ -1,20 +1,20 @@
 {
   "name": "launchdz",
   "description": "Guided creation of launchd plist files",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/jackmac92/launchd-wizard"
+  },
   "version": "1.0.1",
   "@pika/pack": {
     "pipeline": [
       [
         "@pika/plugin-ts-standard-pkg",
         {
-          "exclude": [
-            "__tests__/**/*"
-          ]
+          "exclude": ["__tests__/**/*"]
         }
       ],
-      [
-        "@pika/plugin-build-node"
-      ],
+      ["@pika/plugin-build-node"],
       [
         "@pika/plugin-simple-bin",
         {
@@ -54,14 +54,9 @@
     "ts-jest": "^24.2.0"
   },
   "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ]
+    "extends": ["@commitlint/config-conventional"]
   },
   "lint-staged": {
-    "*.js": [
-      "eslint --fix",
-      "git add"
-    ]
+    "*.js": ["eslint --fix", "git add"]
   }
 }

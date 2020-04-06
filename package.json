@@ -11,10 +11,14 @@
       [
         "@pika/plugin-ts-standard-pkg",
         {
-          "exclude": ["__tests__/**/*"]
+          "exclude": [
+            "__tests__/**/*"
+          ]
         }
       ],
-      ["@pika/plugin-build-node"],
+      [
+        "@pika/plugin-build-node"
+      ],
       [
         "@pika/plugin-simple-bin",
         {
@@ -30,6 +34,7 @@
     "lint": "eslint src/**/*.js"
   },
   "dependencies": {
+    "@sentry/node": "^5.15.4",
     "enquirer": "^2.3.2",
     "plist": "^3.0.1",
     "shelljs": "^0.8.3",
@@ -44,6 +49,7 @@
     "@pika/plugin-simple-bin": "^0.8.1",
     "@pika/plugin-ts-standard-pkg": "^0.8.1",
     "@types/jest": "^24.0.25",
+    "@types/yargs": "^15.0.4",
     "@typescript-eslint/eslint-plugin": "^2.14.0",
     "@typescript-eslint/parser": "^2.14.0",
     "commitlint": "^8.2.0",
@@ -54,9 +60,14 @@
     "ts-jest": "^24.2.0"
   },
   "commitlint": {
-    "extends": ["@commitlint/config-conventional"]
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
   },
   "lint-staged": {
-    "*.js": ["eslint --fix", "git add"]
+    "*.js": [
+      "eslint --fix",
+      "git add"
+    ]
   }
 }

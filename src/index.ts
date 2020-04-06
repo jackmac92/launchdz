@@ -1,12 +1,18 @@
 import fs from "fs";
 import shell from "shelljs";
 import write from "write";
+import * as Sentry from "@sentry/node";
 import handleKeepAlive from "./modules/keepAlive";
 import handleEnvVars from "./modules/envVars";
 import getCommonInfo from "./modules/core";
 import prebakedOfferings from "./prebaked/index";
 import { build as plistBuilder } from "plist";
 import { getResult } from "./utils";
+
+Sentry.init({
+  dsn:
+    "https://3600e5fcc078461db1372bff6b909ccf@o260107.ingest.sentry.io/5191242"
+});
 
 const LABEL_BASE = "local.npm-launchd-wizard";
 

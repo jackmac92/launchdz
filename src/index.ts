@@ -10,6 +10,7 @@ import { build as plistBuilder } from "plist";
 import { getResult } from "./utils";
 
 Sentry.init({
+  release: `${process.env.npm_package_name}-${process.env.npm_package_version}`,
   dsn:
     "https://3600e5fcc078461db1372bff6b909ccf@o260107.ingest.sentry.io/5191242"
 });

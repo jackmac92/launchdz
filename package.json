@@ -1,39 +1,22 @@
 {
   "name": "launchdz",
   "description": "Guided creation of launchd plist files",
+  "version": "v2.6.0",
+  "bin": {
+    "launchdz": "dist-node/index.bin.js"
+  },
+  "files": [
+    "dist-*/",
+    "bin/"
+  ],
+  "pika": true,
+  "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "https://gitlab.com/jackmac92/launchd-wizard"
   },
-  "version": "v2.6.0",
-  "@pika/pack": {
-    "pipeline": [
-      [
-        "@pika/plugin-ts-standard-pkg",
-        {
-          "exclude": [
-            "__tests__/**/*"
-          ]
-        }
-      ],
-      [
-        "@pika/plugin-build-node"
-      ],
-      [
-        "@pika/plugin-simple-bin",
-        {
-          "bin": "launchdz"
-        }
-      ]
-    ]
-  },
-  "scripts": {
-    "build": "pika build",
-    "check-commit": "lint-staged && jest --changedSince=HEAD",
-    "test": "jest",
-    "lint": "eslint src/**/*.js"
-  },
   "dependencies": {
+    "@semantic-release/gitlab-config": "^8.0.0",
     "@sentry/node": "^5.15.4",
     "enquirer": "^2.3.2",
     "plist": "^3.0.1",
@@ -60,15 +43,7 @@
     "pre-commit": "^1.2.2",
     "ts-jest": "^24.2.0"
   },
-  "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ]
-  },
-  "lint-staged": {
-    "*.js": [
-      "eslint --fix",
-      "git add"
-    ]
-  }
+  "source": "dist-src/index.js",
+  "types": "dist-types/index.d.ts",
+  "main": "dist-node/index.js"
 }

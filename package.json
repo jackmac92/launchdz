@@ -5,7 +5,7 @@
     "type": "git",
     "url": "https://gitlab.com/jackmac92/launchd-wizard"
   },
-  "version": "1.0.1",
+  "version": "v2.6.0",
   "@pika/pack": {
     "pipeline": [
       [

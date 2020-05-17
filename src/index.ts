@@ -1,12 +1,19 @@
 import fs from "fs";
 import shell from "shelljs";
 import write from "write";
+import * as Sentry from "@sentry/node";
 import handleKeepAlive from "./modules/keepAlive";
 import handleEnvVars from "./modules/envVars";
 import getCommonInfo from "./modules/core";
 import prebakedOfferings from "./prebaked/index";
 import { build as plistBuilder } from "plist";
 import { getResult } from "./utils";
+
+Sentry.init({
+  release: `${process.env.npm_package_name}-${process.env.npm_package_version}`,
+  dsn:
+    "https://3600e5fcc078461db1372bff6b909ccf@o260107.ingest.sentry.io/5191242"
+});
 
 const LABEL_BASE = "local.npm-launchd-wizard";
 
@@ -182,6 +189,12 @@ const main = async () => {
         yargs.positional("prebakedOption", {
           describe: "Which prebaked service would you like?"
         });
+        yargs.option("autoInstallDeps", {
+          type: "boolean",
+          alias: "f",
+          default: false,
+          describe: "Automatically install missing requirements?"
+        });
       },
       async a => {
         if (!prebakedOfferings[a.prebakedOption]) {
@@ -192,7 +205,36 @@ const main = async () => {
           );
         }
         const prebakedApp = prebakedOfferings[a.prebakedOption](a);
-        const scriptPath = `${process.env.HOME}/.launchdz/scripts/${prebakedApp.LABEL}.sh`;
+        const scriptPath = `${process.env.HOME}/.launchdz/scripts/${prebakedApp.NAME}.sh`;
+        const missingDependencies = await prebakedApp.requiredTools.reduce(
+          (missingDeps: string[], [dep, autoInstallCmd]: [string, string?]) => {
+            let isMissing = false;
+
+            if (shell.exec(`command -v ${dep} > /dev/null 2>&1`).code !== 0) {
+              const shouldTryInstall = a.autoInstallDeps && autoInstallCmd;
+              if (shouldTryInstall) {
+                if (shell.exec(autoInstallCmd).code !== 0) {
+                  isMissing = true;
+                }
+              } else {
+                isMissing = true;
+              }
+            }
+            if (isMissing) {
+              missingDeps.push(dep);
+            }
+            return missingDeps;
+          },
+          []
+        );
+
+        if (missingDependencies.length !== 0) {
+          console.error(
+            "It appears you are missing dependencies!:\n",
+            missingDependencies.join("\n\t")
+          );
+          process.exit(1);
+        }
         await write(scriptPath, prebakedApp.script);
         await loadPlist(
           prebakedApp.plist,

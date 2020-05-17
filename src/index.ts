@@ -183,6 +183,20 @@ const main = async () => {
       a => addPlist("proc", a)
     )
     .command(
+      "fswatch-proc",
+      "create a new plist file for launchd",
+      yargs => {
+        defaultArgSetup(yargs);
+        yargs.option("fileName", {
+          type: "string",
+          multi: true,
+          short: "f"
+        });
+        yargs.demandOption("fileName");
+      },
+      a => addPlist("proc", a)
+    )
+    .command(
       "prebaked [prebakedOption]",
       "Install a preconfigured launchd service",
       yargs => {

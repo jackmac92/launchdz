@@ -25,12 +25,19 @@ const LABEL_BASE = "local.npm-launchd-wizard";
 //   keepalive always?
 //   stdio
 // self destructing?
-async function generateFromTemplate(serviceType, _argz) {
+async function generateFromTemplate(serviceType, argz) {
   const pList: { [key: string]: any } = {};
-  const { cmd, label } = await getCommonInfo();
+  const { cmd, label } = await getCommonInfo(serviceType, argz);
   pList.Label = `${LABEL_BASE}.${label}`;
   pList.ProgramArguments = cmd.split(" ");
   switch (serviceType) {
+    case "fswatch-proc": {
+      pList.RunAtLoad = true;
+      pList.LaunchOnlyOnce = true;
+      pList.KeepAlive = {};
+      pList.KeepAlive.SuccessfulExit = false;
+      break;
+    }
     case "proc": {
       pList.RunAtLoad = true;
       pList.LaunchOnlyOnce = true;
@@ -173,6 +180,7 @@ const main = async () => {
       yrgs.option(name, opts);
     });
   };
+  // @ts-ignore
   return require("yargs")
     .command(
       "proc",
@@ -184,17 +192,27 @@ const main = async () => {
     )
     .command(
       "fswatch-proc",
-      "create a new plist file for launchd",
+      "Run a code snippet when something in a folder changes",
       yargs => {
         defaultArgSetup(yargs);
-        yargs.option("fileName", {
-          type: "string",
-          multi: true,
+        yargs.option("folders", {
+          type: "array",
           short: "f"
         });
-        yargs.demandOption("fileName");
+        yargs.option("filePrefix", {
+          type: "string",
+          default: ".",
+          description:
+            "Only invoke command if file event starts with this prefix"
+        });
+        yargs.option("targetRenames", {
+          type: "boolean",
+          default: false
+        });
+
+        yargs.demandOption("folders");
       },
-      a => addPlist("proc", a)
+      a => addPlist("fswatch-proc", a)
     )
     .command(
       "prebaked [prebakedOption]",
@@ -211,14 +229,15 @@ const main = async () => {
         });
       },
       async a => {
-        if (!prebakedOfferings[a.prebakedOption]) {
+        const choiceOfPrebaked = a.prebakedOption as string;
+        if (!prebakedOfferings[choiceOfPrebaked]) {
           throw Error(
             `Please choose a supported pre-baked app\n${Object.keys(
               prebakedOfferings
             )}`
           );
         }
-        const prebakedApp = prebakedOfferings[a.prebakedOption](a);
+        const prebakedApp = prebakedOfferings[choiceOfPrebaked](a);
         const scriptPath = `${process.env.HOME}/.launchdz/scripts/${prebakedApp.NAME}.sh`;
         const missingDependencies = await prebakedApp.requiredTools.reduce(
           (missingDeps: string[], [dep, autoInstallCmd]: [string, string?]) => {

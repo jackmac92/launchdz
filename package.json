@@ -1,6 +1,16 @@
 {
   "name": "launchdz",
   "description": "Guided creation of launchd plist files",
+  "version": "v2.6.0",
+  "bin": {
+    "launchdz": "dist-node/index.bin.js"
+  },
+  "files": [
+    "dist-*/",
+    "bin/"
+  ],
+  "pika": true,
+  "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "https://gitlab.com/jackmac92/launchdz"
@@ -30,6 +40,7 @@
     "lint": "eslint src/**/*.js"
   },
   "dependencies": {
+    "@semantic-release/gitlab-config": "^8.0.0",
     "@sentry/node": "^5.15.4",
     "enquirer": "^2.3.2",
     "plist": "^3.0.1",

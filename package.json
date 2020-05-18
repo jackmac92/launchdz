@@ -3,7 +3,7 @@
   "description": "Guided creation of launchd plist files",
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/jackmac92/launchdz"
+    "url": "https://gitlab.com/jackmac92/launchdz.git"
   },
   "version": "v2.6.0",
   "@pika/pack": {

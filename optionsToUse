@@ -1,0 +1,56 @@
+CPU
+The maximum amount of CPU time in seconds the process can use. If it runs for longer than this, it receives signal SIGXCPU.
+
+Nice
+Run a job at an altered scheduling priority. Possible values range from -20 to 20. The default value is 0. Lower nice values cause more favorable scheduling.
+Plain TextLaunchControl
+<key>Nice</key>
+<integer>-5</integer>
+NOTE: Nice values lower than zero are honored by daemons only.
+
+Env vars
+```
+<key>EnvironmentVariables</key>
+<dict>
+	<key>PATH</key>
+	<string>/bin:/usr/bin:/usr/local/bin</string>
+</dict>
+```
+
+```
+<key>WorkingDirectory</key>
+<string>/tmp</string>
+```
+
+FileSize
+The program won't be able to create files larger than this. Trying to create a larger file will result in signal SIGXFSZ being sent.
+
+The following example sets the soft limit to 512kiB, the hard limit to 1MiB.
+```
+<key>HardResourceLimits</key>
+<dict>
+	<key>FileSize</key>
+	<integer>1048576</integer>
+</dict>
+<key>SoftResourceLimits</key>
+<dict>
+	<key>FileSize</key>
+	<integer>524288</integer>
+</dict>
+```
+
+Delaying the start: AfterInitialDemand
+This key affects other keys related to run conditions like RunAtLoad, StartCalendarInterval, WatchPaths or KeepAlive. If set, these keys will be ignored until the job has been started manually.
+
+Plain TextLaunchControl
+<key>KeepAlive</key>
+<dict>
+	<key>AfterInitialDemand</key>
+	<dict>
+		<key>local.otherJob</key>
+		<true/>
+	</dict>
+</dict>
+
+AbandonProcessGroup
+When launchd wants to terminate a job it sends a SIGTERM signal which will be propagated to all child processes of the job as well. Setting the value of this key to true will stop this propagation, allowing the child processes to survive their parents.

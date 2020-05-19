@@ -13,7 +13,7 @@
   "sideEffects": false,
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/jackmac92/launchdz"
+    "url": "https://gitlab.com/jackmac92/launchdz.git"
   },
   "@pika/pack": {
     "pipeline": [

@@ -3,8 +3,9 @@ import shell from "shelljs";
 import write from "write";
 import * as Sentry from "@sentry/node";
 import handleKeepAlive from "./modules/keepAlive";
+import handleSTDIO from "./modules/stdio";
 import handleEnvVars from "./modules/envVars";
-import getCommonInfo from "./modules/core";
+import { getLabel, getCommand } from "./modules/core";
 import prebakedOfferings from "./prebaked/index";
 import { build as plistBuilder } from "plist";
 import { getResult } from "./utils";
@@ -17,17 +18,10 @@ Sentry.init({
 
 const LABEL_BASE = "local.npm-launchd-wizard";
 
-// templates
-// persistent daemon
-//   keepalive always?
-//   stdio
-// run at login
-//   keepalive always?
-//   stdio
-// self destructing?
 async function generateFromTemplate(serviceType, argz) {
   const pList: { [key: string]: any } = {};
-  const { cmd, label } = await getCommonInfo(serviceType, argz);
+  const label = await getLabel();
+  const cmd = await getCommand(label, serviceType, argz);
   pList.Label = `${LABEL_BASE}.${label}`;
   pList.ProgramArguments = cmd.split(" ");
   switch (serviceType) {
@@ -41,7 +35,6 @@ async function generateFromTemplate(serviceType, argz) {
     case "proc": {
       pList.RunAtLoad = true;
       pList.LaunchOnlyOnce = true;
-      // Use default KeepAlive until successful exit?
 
       if (
         await getResult({
@@ -84,6 +77,7 @@ async function generateFromTemplate(serviceType, argz) {
     }
   }
 
+  Object.assign(pList, await handleSTDIO(label));
   const envVars = await handleEnvVars();
   if (envVars.length > 0) {
     pList.EnvironmentVariables = envVars.reduce(
@@ -95,7 +89,11 @@ async function generateFromTemplate(serviceType, argz) {
   return pList;
 }
 
-const loadPlist = async (plistStr, plistFilePath, noLoad) => {
+const loadPlist = async (
+  plistStr: string,
+  plistFilePath: string,
+  noLoad: boolean
+) => {
   if (plistFilePath.startsWith("/System")) {
     await shell.exec(`
       sudo cat <<EOF > ${plistFilePath}
@@ -116,7 +114,7 @@ const loadPlist = async (plistStr, plistFilePath, noLoad) => {
   console.log("Successfully loaded the new launchd service");
 };
 
-async function addPlist(serviceType, argz) {
+async function addPlist(serviceType: string, argz: any) {
   const plist = await generateFromTemplate(serviceType, argz);
 
   const plistStr = plistBuilder(plist);
@@ -143,6 +141,7 @@ function listLaunchdItems(): Promise<string[]> {
     });
   });
 }
+
 function listLaunchd(argz): Promise<string[]> {
   return listLaunchdItems().then(items => {
     const filterFn = argz.all ? () => true : i => i.startsWith(LABEL_BASE);
@@ -175,6 +174,7 @@ const main = async () => {
       }
     ]
   ];
+
   const defaultArgSetup = yrgs => {
     globalArgs.forEach(([name, opts]) => {
       yrgs.option(name, opts);

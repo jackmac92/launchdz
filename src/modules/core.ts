@@ -2,8 +2,8 @@ import child_process from "child_process";
 import write from "write";
 import { getResult } from "../utils";
 
-const getCommonInfo = async (typeToGenerate, argz) => {
-  const label = await getResult({
+export const getLabel = () =>
+  getResult({
     type: "input",
     message: "What is the text label for this service?",
     validate: s => {
@@ -14,6 +14,7 @@ const getCommonInfo = async (typeToGenerate, argz) => {
     }
   });
 
+export const getCommand = async (label, typeToGenerate, argz) => {
   const scriptPath = (suffix?: string) =>
     `${process.env.HOME}/.launchdz/scripts/${[label, suffix]
       .filter(a => a)
@@ -61,7 +62,5 @@ const getCommonInfo = async (typeToGenerate, argz) => {
   }
   const cmd = `/bin/bash ${mainScriptPath}`;
 
-  return { cmd, label };
+  return cmd;
 };
-
-export default getCommonInfo;

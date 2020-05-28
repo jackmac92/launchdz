@@ -1,12 +1,12 @@
+import * as Sentry from "@sentry/node";
 import fs from "fs";
+import { build as plistBuilder } from "plist";
 import shell from "shelljs";
 import write from "write";
-import * as Sentry from "@sentry/node";
-import handleKeepAlive from "./modules/keepAlive";
-import handleEnvVars from "./modules/envVars";
 import getCommonInfo from "./modules/core";
+import handleEnvVars from "./modules/envVars";
+import handleKeepAlive from "./modules/keepAlive";
 import prebakedOfferings from "./prebaked/index";
-import { build as plistBuilder } from "plist";
 import { getResult } from "./utils";
 
 Sentry.init({
@@ -180,8 +180,10 @@ const main = async () => {
       yrgs.option(name, opts);
     });
   };
+
   // @ts-ignore
   return require("yargs")
+    .completion()
     .command(
       "proc",
       "create a new plist file for launchd",

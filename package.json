@@ -1,7 +1,7 @@
 {
   "name": "launchdz",
   "description": "Guided creation of launchd plist files",
-  "version": "v2.6.1",
+  "version": "v2.7.0",
   "bin": {
     "launchdz": "dist-node/index.bin.js"
   },
